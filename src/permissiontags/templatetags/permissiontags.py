@@ -35,7 +35,15 @@ class IfPermissionNode(template.Node):
             self.obj = None
 
     def render(self, context):
-        user = template.Variable('user').resolve(context)
+        user = None
+        try:
+            user = getattr(template.Variable('request').resolve(context), 'user', None)
+        except template.VariableDoesNotExist:
+            pass
+
+        if user is None:
+            user = template.Variable('user').resolve(context)
+
         if self.obj is not None:
             obj = self.obj.resolve(context)
         else:
